@@ -501,4 +501,128 @@ document.getElementById('merchant-input').addEventListener('input', () => {
 
 renderCategoryChips();
 document.getElementById('date-input').value = todayString();
+setupBackup();
 showScreen('home');
+
+let pendingImport = null;
+
+function showBackupMessage(message) {
+  const note = document.getElementById('backup-message');
+  if (!message) {
+    note.hidden = true;
+    note.textContent = '';
+    return;
+  }
+  note.hidden = false;
+  note.textContent = message;
+}
+
+function resetPendingImport() {
+  pendingImport = null;
+  const confirmBtn = document.getElementById('import-confirm');
+  confirmBtn.hidden = true;
+  document.getElementById('import-file').value = '';
+}
+
+function normalizeImported(list) {
+  if (!Array.isArray(list)) return null;
+  const next = [];
+  list.forEach((item) => {
+    if (!item || typeof item !== 'object') return;
+    const amount = Number(item.amount);
+    const date = String(item.date || '');
+    const merchant = String(item.merchant || '').trim();
+    if (!Number.isFinite(amount) || amount < 0) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+    if (!merchant) return;
+    next.push({
+      id: item.id ? String(item.id) : createId(),
+      amount: Math.round(amount * 100) / 100,
+      date,
+      merchant,
+      category: categoryByName(item.category).name,
+      status: item.status === 'pending' ? 'pending' : 'confirmed',
+      createdAt: item.createdAt ? String(item.createdAt) : new Date().toISOString()
+    });
+  });
+  return next;
+}
+
+function readBackupData(parsed) {
+  if (Array.isArray(parsed)) return normalizeImported(parsed);
+  if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.transactions)) return null;
+  return normalizeImported(parsed.transactions);
+}
+
+async function exportBackup() {
+  const payload = {
+    app: 'expense-tracker',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    transactions: getTransactions()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const filename = 'expense-backup-' + todayString() + '.json';
+  const file = new File([blob], filename, { type: 'application/json' });
+
+  try {
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: '支出備份' });
+      showBackupMessage('已開啟分享。請儲存到「檔案」或傳給自己。');
+      return;
+    }
+  } catch (error) {
+    if (error && error.name === 'AbortError') return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  showBackupMessage('已匯出 ' + getTransactions().length + ' 筆。請把檔案存好。');
+}
+
+function setupBackup() {
+  document.getElementById('export-btn').addEventListener('click', () => {
+    resetPendingImport();
+    exportBackup();
+  });
+
+  document.getElementById('import-file').addEventListener('change', (event) => {
+    const file = event.target.files && event.target.files[0];
+    pendingImport = null;
+    document.getElementById('import-confirm').hidden = true;
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result || ''));
+        const transactions = readBackupData(parsed);
+        if (!transactions) {
+          showBackupMessage('這個檔案不是支出備份，沒有匯入。');
+          return;
+        }
+        pendingImport = transactions;
+        document.getElementById('import-confirm').hidden = false;
+        showBackupMessage('這個備份有 ' + transactions.length + ' 筆。再按下面的紅色按鈕，才會取代目前資料。');
+      } catch (error) {
+        showBackupMessage('檔案讀不到，沒有匯入。');
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById('import-confirm').addEventListener('click', () => {
+    if (!pendingImport) return;
+    writeTransactions(pendingImport);
+    const count = pendingImport.length;
+    resetPendingImport();
+    renderSummary();
+    showBackupMessage('已匯入 ' + count + ' 筆，並取代原本的資料。');
+  });
+}
