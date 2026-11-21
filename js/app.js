@@ -487,7 +487,9 @@ document.getElementById('fab').addEventListener('click', () => {
 });
 
 function setMenuOpen(open) {
-  document.getElementById('side-menu').classList.toggle('is-open', open);
+  const menu = document.getElementById('side-menu');
+  menu.classList.toggle('is-open', open);
+  document.querySelector('.menu-panel').style.transform = '';
 }
 
 function setBackupSheetOpen(open) {
@@ -495,13 +497,70 @@ function setBackupSheetOpen(open) {
 }
 
 document.getElementById('menu-btn').addEventListener('click', () => setMenuOpen(true));
-document.getElementById('menu-close').addEventListener('click', () => setMenuOpen(false));
 document.getElementById('menu-backdrop').addEventListener('click', () => setMenuOpen(false));
 document.getElementById('open-backup').addEventListener('click', () => {
   setMenuOpen(false);
   setBackupSheetOpen(true);
 });
 document.getElementById('sheet-backdrop').addEventListener('click', () => setBackupSheetOpen(false));
+
+(function setupMenuSwipe() {
+  const menu = document.getElementById('side-menu');
+  const panel = document.querySelector('.menu-panel');
+  let startX = 0;
+  let startY = 0;
+  let tracking = false;
+  let horizontal = false;
+
+  document.addEventListener('touchstart', (event) => {
+    if (event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    const open = menu.classList.contains('is-open');
+    const fromEdge = touch.clientX <= 28;
+    const onPanel = open && touch.clientX <= panel.getBoundingClientRect().right;
+    if (!fromEdge && !onPanel) return;
+    startX = touch.clientX;
+    startY = touch.clientY;
+    tracking = true;
+    horizontal = false;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (event) => {
+    if (!tracking) return;
+    const touch = event.touches[0];
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
+    if (!horizontal) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        tracking = false;
+        return;
+      }
+      horizontal = true;
+      panel.style.transition = 'none';
+    }
+    const width = panel.offsetWidth;
+    const open = menu.classList.contains('is-open');
+    const shown = Math.max(0, Math.min(width, (open ? width : 0) + dx));
+    panel.style.transform = 'translateX(' + (shown - width) + 'px)';
+  }, { passive: true });
+
+  function endSwipe(event) {
+    if (!tracking) return;
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - startX;
+    const open = menu.classList.contains('is-open');
+    tracking = false;
+    panel.style.transition = '';
+    panel.style.transform = '';
+    if (!horizontal) return;
+    if (open) setMenuOpen(dx < -40 ? false : true);
+    else setMenuOpen(dx > 40);
+  }
+
+  document.addEventListener('touchend', endSwipe);
+  document.addEventListener('touchcancel', endSwipe);
+})();
 
 document.getElementById('pending-banner').addEventListener('click', () => {
   openConfirm();
