@@ -10,6 +10,7 @@ let selectedCategory = '飲食';
 let editingId = null;
 let deleteArmed = false;
 let categoryManuallyChosen = false;
+let formMode = 'add';
 
 const CATEGORY_KEYWORDS = [
   ['飲食', ['麥當勞', 'mcdonald', '肯德基', 'kfc', '星巴克', 'starbucks', '大家樂', '大快活', '美心', '吉野家', '譚仔', '壽司郎', '壽司', '茶餐廳', '咖啡', 'cafe', '餐廳']],
@@ -78,6 +79,7 @@ function renderSummary() {
   document.getElementById('week-total').textContent = formatAmount(sumBetween(week.start, week.end) / 100);
   document.getElementById('month-total').textContent = formatAmount(sumBetween(monthStart, monthEnd) / 100);
   renderCategoryBreakdown(document.getElementById('home-categories'), 'amount');
+  renderPendingBanner();
 }
 
 function monthCategoryTotals() {
@@ -232,7 +234,10 @@ function renderTransactionList() {
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'tx-card';
-    card.addEventListener('click', () => openTransaction(transaction.id));
+    card.addEventListener('click', () => {
+      if (transaction.status === 'pending') openConfirm(transaction.id);
+      else openTransaction(transaction.id);
+    });
 
     const icon = document.createElement('div');
     icon.className = 'tx-icon';
@@ -248,7 +253,7 @@ function renderTransactionList() {
 
     const meta = document.createElement('div');
     meta.className = 'tx-meta';
-    meta.textContent = formatDateLabel(transaction.date) + ' · ' + category.name;
+    meta.textContent = formatDateLabel(transaction.date) + ' · ' + category.name + (transaction.status === 'pending' ? ' · 待確認' : '');
 
     const amount = document.createElement('div');
     amount.className = 'tx-amount';
@@ -355,12 +360,27 @@ function showFormError(message) {
 }
 
 function setFormMode(mode) {
-  const isEdit = mode === 'edit';
-  document.getElementById('form-emoji').textContent = isEdit ? '✏️' : '➕';
-  document.getElementById('form-title-text').textContent = isEdit ? '編輯' : '新增';
-  document.getElementById('save-btn').textContent = isEdit ? '儲存修改' : '儲存這筆';
+  formMode = mode;
+  const emoji = document.getElementById('form-emoji');
+  const title = document.getElementById('form-title-text');
+  const saveBtn = document.getElementById('save-btn');
   const deleteBtn = document.getElementById('delete-btn');
-  deleteBtn.hidden = !isEdit;
+  if (mode === 'edit') {
+    emoji.textContent = '✏️';
+    title.textContent = '編輯';
+    saveBtn.textContent = '儲存修改';
+    deleteBtn.hidden = false;
+  } else if (mode === 'confirm') {
+    emoji.textContent = '✅';
+    title.textContent = '確認';
+    saveBtn.textContent = '確認這筆';
+    deleteBtn.hidden = false;
+  } else {
+    emoji.textContent = '➕';
+    title.textContent = '新增';
+    saveBtn.textContent = '儲存這筆';
+    deleteBtn.hidden = true;
+  }
   deleteArmed = false;
   deleteBtn.textContent = '刪除這筆';
   deleteBtn.classList.remove('is-armed');
@@ -386,18 +406,53 @@ function resetAddForm() {
   setFormMode('add');
 }
 
-function openTransaction(id) {
-  const transaction = getTransactions().find((item) => item.id === id);
-  if (!transaction) return;
+function pendingTransactions() {
+  return getTransactions()
+    .filter((item) => item.status === 'pending')
+    .sort((a, b) => String(a.createdAt || '').localeCompare(String(b.createdAt || '')));
+}
 
+function renderPendingBanner() {
+  const banner = document.getElementById('pending-banner');
+  if (!banner) return;
+  const count = pendingTransactions().length;
+  banner.hidden = count === 0;
+  document.getElementById('pending-count').textContent = String(count);
+}
+
+function fillTransactionForm(transaction) {
   editingId = transaction.id;
   document.getElementById('amount-input').value = String(transaction.amount);
   document.getElementById('merchant-input').value = transaction.merchant || '';
   document.getElementById('date-input').value = transaction.date || todayString();
   setSelectedCategory(categoryByName(transaction.category).name);
   categoryManuallyChosen = true;
-  updateCategoryHint('');
   showFormError('');
+}
+
+function openConfirm(id) {
+  const pending = pendingTransactions();
+  const transaction = pending.find((item) => item.id === id) || pending[0];
+  if (!transaction) {
+    resetAddForm();
+    showScreen('home');
+    return;
+  }
+  fillTransactionForm(transaction);
+  setFormMode('confirm');
+  updateCategoryHint('還有 ' + pending.length + ' 筆待確認。可以改類別，再按確認。');
+  showScreen('add');
+}
+
+function openTransaction(id) {
+  const transaction = getTransactions().find((item) => item.id === id);
+  if (!transaction) return;
+  if (transaction.status === 'pending') {
+    openConfirm(transaction.id);
+    return;
+  }
+  fillTransactionForm(transaction);
+  updateCategoryHint('');
   setFormMode('edit');
   showScreen('add');
 }
@@ -431,6 +486,10 @@ document.getElementById('fab').addEventListener('click', () => {
   showScreen('add');
 });
 
+document.getElementById('pending-banner').addEventListener('click', () => {
+  openConfirm();
+});
+
 document.getElementById('add-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const amount = parseAmount(document.getElementById('amount-input').value);
@@ -450,6 +509,27 @@ document.getElementById('add-form').addEventListener('submit', (event) => {
     return;
   }
 
+  if (formMode === 'confirm' && editingId) {
+    const updated = updateTransaction(editingId, {
+      amount,
+      date,
+      merchant,
+      category: selectedCategory,
+      status: 'confirmed'
+    });
+    if (!updated) {
+      showFormError('找不到這筆紀錄，請回到列表再試一次');
+      return;
+    }
+    const next = pendingTransactions()[0];
+    if (next) openConfirm(next.id);
+    else {
+      resetAddForm();
+      showScreen('home');
+    }
+    return;
+  }
+
   if (editingId) {
     const existing = getTransactions().find((item) => item.id === editingId);
     const updated = updateTransaction(editingId, {
@@ -464,13 +544,17 @@ document.getElementById('add-form').addEventListener('submit', (event) => {
       return;
     }
   } else {
+    const status = categoryManuallyChosen ? 'confirmed' : 'pending';
     addTransaction({
       amount,
       date,
       merchant,
       category: selectedCategory,
-      status: 'confirmed'
+      status
     });
+    resetAddForm();
+    showScreen(status === 'pending' ? 'home' : 'transactions');
+    return;
   }
   resetAddForm();
   showScreen('transactions');
@@ -485,7 +569,17 @@ document.getElementById('delete-btn').addEventListener('click', () => {
     deleteBtn.classList.add('is-armed');
     return;
   }
+  const wasConfirm = formMode === 'confirm';
   deleteTransaction(editingId);
+  if (wasConfirm) {
+    const next = pendingTransactions()[0];
+    if (next) openConfirm(next.id);
+    else {
+      resetAddForm();
+      showScreen('home');
+    }
+    return;
+  }
   resetAddForm();
   showScreen('transactions');
 });
