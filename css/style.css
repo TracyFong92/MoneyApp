@@ -359,6 +359,13 @@ html, body {
   color: white;
 }
 
+.category-hint {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
 .save-btn {
   width: 100%;
   margin-top: 8px;
