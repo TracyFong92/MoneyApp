@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>支出追蹤 - 最終設計</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F0FDFA;
+    --bg-gradient: linear-gradient(180deg, #F0FDFA 0%, #FDF2F8 100%);
+    --primary: #F472B6;
+    --primary-dark: #EC4899;
+    --accent-peach: #FDE68A;
+    --accent-mint: #6EE7B7;
+    --accent-yellow: #FDE68A;
+    --accent-pink: #F9A8D4;
+    --text: #3F3F46;
+    --text-secondary: #71717A;
+    --card: #FFFFFF;
+    --font: 'Nunito', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font);
+    background: #FDF2F8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--bg-gradient);
+    border-radius: 48px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(236, 72, 153, 0.2);
+    border: 10px solid #1C1C1E;
+    font-family: var(--font);
+  }
+
+  .status-bar {
+    height: 54px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--primary-dark);
+  }
+
+  .dynamic-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 37px;
+    background: #1C1C1E;
+    border-radius: 20px;
+    z-index: 10;
+  }
+
+  .screen {
+    display: none;
+    height: calc(100% - 54px - 90px);
+    overflow-y: auto;
+    padding: 12px 18px 24px;
+  }
+  .screen.active { display: block; }
+
+  .header { margin-bottom: 20px; }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    letter-spacing: -0.5px;
+  }
+  .header .subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+  .header .emoji { font-size: 28px; margin-right: 8px; }
+
+  .hero-card {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent-pink) 100%);
+    border-radius: 28px;
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(244, 114, 182, 0.25);
+  }
+  .hero-card::before {
+    content: "✨";
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 32px;
+    opacity: 0.85;
+  }
+  .hero-card .label { font-size: 15px; opacity: 0.95; margin-bottom: 6px; font-weight: 700; }
+  .hero-card .amount { font-size: 42px; font-weight: 800; letter-spacing: -1px; }
+  .hero-card .amount span { font-size: 22px; font-weight: 700; }
+
+  .mini-cards { display: flex; gap: 12px; margin-bottom: 24px; }
+  .mini-card {
+    flex: 1;
+    background: white;
+    border-radius: 22px;
+    padding: 18px 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+  .mini-card.peach { background: linear-gradient(135deg, #FEF3C7, var(--accent-peach)); }
+  .mini-card.mint { background: linear-gradient(135deg, #D1FAE5, var(--accent-mint)); }
+  .mini-card .label { font-size: 13px; color: #57534E; font-weight: 700; }
+  .mini-card .amount { font-size: 22px; font-weight: 800; margin-top: 4px; color: #1C1917; }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin: 8px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cat-item, .tx-card {
+    background: white;
+    border-radius: 20px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .cat-icon, .tx-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .cat-info, .tx-info { flex: 1; }
+  .cat-info .name, .tx-info .merchant { font-weight: 700; font-size: 15px; }
+  .cat-info .bar {
+    height: 8px;
+    background: #F3F4F6;
+    border-radius: 4px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .cat-info .fill { height: 100%; border-radius: 4px; }
+  .cat-amount, .tx-amount { font-weight: 800; font-size: 15px; }
+  .tx-info .meta { font-size: 13px; color: var(--text-secondary); margin-top: 2px; font-weight: 600; }
+
+  .filter-pills { display: flex; gap: 8px; margin-bottom: 18px; overflow-x: auto; }
+  .pill {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    background: white;
+    font-weight: 700;
+    font-size: 14px;
+    color: #6B7280;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    font-family: inherit;
+  }
+  .pill.active { background: var(--primary); color: white; }
+
+  .add-hero { text-align: center; margin: 20px 0 30px; }
+  .add-hero .currency { font-size: 20px; color: var(--primary); font-weight: 700; }
+  .amount-big {
+    font-size: 64px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    letter-spacing: -2px;
+    background: transparent;
+    border: none;
+    text-align: center;
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+  }
+  .input-card {
+    background: white;
+    border-radius: 22px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .input-card label { font-size: 13px; color: #9CA3AF; font-weight: 700; display: block; margin-bottom: 6px; }
+  .input-card input {
+    width: 100%;
+    border: none;
+    font-size: 18px;
+    font-weight: 700;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .chip {
+    padding: 10px 18px;
+    border-radius: 20px;
+    border: none;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    background: #F3F4F6;
+    color: #4B5563;
+    font-family: inherit;
+  }
+  .chip.selected { background: var(--primary); color: white; }
+
+  .save-btn {
+    background: linear-gradient(135deg, var(--primary), var(--accent-pink));
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: 800;
+    width: calc(100% - 36px);
+    position: absolute;
+    bottom: 110px;
+    left: 18px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(244, 114, 182, 0.4);
+    font-family: inherit;
+  }
+
+  .tab-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 90px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(244, 114, 182, 0.15);
+    display: flex;
+    padding-bottom: 20px;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: none;
+    background: transparent;
+    color: #9CA3AF;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .tab.active { color: var(--primary-dark); }
+  .tab .icon { font-size: 24px; }
+
+  .fab {
+    position: absolute;
+    bottom: 110px;
+    right: 22px;
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, var(--accent-pink), var(--accent-peach));
+    color: white;
+    border: none;
+    font-size: 36px;
+    box-shadow: 0 8px 20px rgba(249, 168, 212, 0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="dynamic-island"></div>
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>5G</span>
+  </div>
+
+  <div id="home" class="screen active">
+    <div class="header">
+      <h1><span class="emoji">🌈</span>總覽</h1>
+      <div class="subtitle">2026年11月 · 今天也要好好記帳呀</div>
+    </div>
+    <div class="hero-card">
+      <div class="label">本月花費</div>
+      <div class="amount"><span>HK$</span> 4,280</div>
+    </div>
+    <div class="mini-cards">
+      <div class="mini-card peach"><div class="label">今日</div><div class="amount">HK$ 186</div></div>
+      <div class="mini-card mint"><div class="label">本週</div><div class="amount">HK$ 920</div></div>
+    </div>
+    <div class="section-title">🎨 類別分佈</div>
+    <div class="cat-item">
+      <div class="cat-icon" style="background:#FEF3C7">🍜</div>
+      <div class="cat-info"><div class="name">飲食</div><div class="bar"><div class="fill" style="width:65%;background:#FDE68A"></div></div></div>
+      <div class="cat-amount">HK$ 2,780</div>
+    </div>
+    <div class="cat-item">
+      <div class="cat-icon" style="background:#DBEAFE">🚇</div>
+      <div class="cat-info"><div class="name">交通</div><div class="bar"><div class="fill" style="width:25%;background:#93C5FD"></div></div></div>
+      <div class="cat-amount">HK$ 680</div>
+    </div>
+    <div class="cat-item">
+      <div class="cat-icon" style="background:#FCE7F3">🛍️</div>
+      <div class="cat-info"><div class="name">購物</div><div class="bar"><div class="fill" style="width:15%;background:#F9A8D4"></div></div></div>
+      <div class="cat-amount">HK$ 520</div>
+    </div>
+    <div class="section-title">📝 最近交易</div>
+    <div class="tx-card">
+      <div class="tx-icon" style="background:#FEF3C7">🍜</div>
+      <div class="tx-info"><div class="merchant">麥當勞</div><div class="meta">今天 12:30 · 飲食</div></div>
+      <div class="tx-amount">HK$ 48</div>
+    </div>
+  </div>
+
+  <div id="transactions" class="screen">
+    <div class="header"><h1><span class="emoji">📒</span>紀錄</h1></div>
+    <div class="filter-pills">
+      <button class="pill active">今天</button>
+      <button class="pill">本週</button>
+      <button class="pill">本月</button>
+    </div>
+    <div class="tx-card">
+      <div class="tx-icon" style="background:#FEF3C7">🍜</div>
+      <div class="tx-info"><div class="merchant">麥當勞</div><div class="meta">今天 12:30 · 飲食</div></div>
+      <div class="tx-amount">HK$ 48</div>
+    </div>
+    <div class="tx-card">
+      <div class="tx-icon" style="background:#DBEAFE">🚇</div>
+      <div class="tx-info"><div class="merchant">八達通</div><div class="meta">今天 08:15 · 交通</div></div>
+      <div class="tx-amount">HK$ 12.5</div>
+    </div>
+    <div class="tx-card">
+      <div class="tx-icon" style="background:#FCE7F3">🛍️</div>
+      <div class="tx-info"><div class="merchant">無印良品</div><div class="meta">昨天 · 購物</div></div>
+      <div class="tx-amount">HK$ 186</div>
+    </div>
+  </div>
+
+  <div id="analytics" class="screen">
+    <div class="header">
+      <h1><span class="emoji">📊</span>分析</h1>
+      <div class="subtitle">這個月的花費分佈</div>
+    </div>
+    <div class="hero-card">
+      <div class="label">本月總花費</div>
+      <div class="amount"><span>HK$</span> 4,280</div>
+    </div>
+    <div class="section-title">🎨 類別明細</div>
+    <div class="cat-item">
+      <div class="cat-icon" style="background:#FEF3C7">🍜</div>
+      <div class="cat-info"><div class="name">飲食</div><div class="bar"><div class="fill" style="width:65%;background:#FDE68A"></div></div></div>
+      <div class="cat-amount">65%</div>
+    </div>
+    <div class="cat-item">
+      <div class="cat-icon" style="background:#DBEAFE">🚇</div>
+      <div class="cat-info"><div class="name">交通</div><div class="bar"><div class="fill" style="width:16%;background:#93C5FD"></div></div></div>
+      <div class="cat-amount">16%</div>
+    </div>
+  </div>
+
+  <div id="add" class="screen">
+    <div class="header"><h1><span class="emoji">➕</span>新增</h1></div>
+    <div class="add-hero">
+      <div class="currency">HK$</div>
+      <input class="amount-big" value="48" />
+    </div>
+    <div class="input-card">
+      <label>商家名稱</label>
+      <input type="text" value="麥當勞" />
+    </div>
+    <div class="input-card">
+      <label>選擇類別</label>
+      <div class="chips">
+        <button class="chip selected">🍜 飲食</button>
+        <button class="chip">🚇 交通</button>
+        <button class="chip">🛍️ 購物</button>
+        <button class="chip">🎉 娛樂</button>
+      </div>
+    </div>
+    <button class="save-btn">儲存這筆 ✨</button>
+  </div>
+
+  <button class="fab" onclick="showScreen('add')">+</button>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="showScreen('home')"><div class="icon">🏠</div>總覽</button>
+    <button class="tab" onclick="showScreen('transactions')"><div class="icon">📒</div>紀錄</button>
+    <button class="tab" onclick="showScreen('analytics')"><div class="icon">📊</div>分析</button>
+  </div>
+</div>
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const tabs = document.querySelectorAll('.tab');
+  if (id === 'home') tabs[0].classList.add('active');
+  if (id === 'transactions') tabs[1].classList.add('active');
+  if (id === 'analytics') tabs[2].classList.add('active');
+  document.querySelector('.fab').style.display = (id === 'add') ? 'none' : 'flex';
+}
+
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+  });
+});
+
+document.querySelectorAll('.pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
