@@ -28,6 +28,10 @@ function showScreen(id) {
     renderSummary();
   }
 
+  if (id === 'analytics') {
+    renderCategoryBreakdown(document.getElementById('analytics-categories'), 'percent');
+  }
+
   if (id === 'transactions') {
     renderTransactionList();
   }
@@ -65,6 +69,83 @@ function renderSummary() {
   document.getElementById('today-total').textContent = formatAmount(sumBetween(today, today) / 100);
   document.getElementById('week-total').textContent = formatAmount(sumBetween(week.start, week.end) / 100);
   document.getElementById('month-total').textContent = formatAmount(sumBetween(monthStart, monthEnd) / 100);
+  renderCategoryBreakdown(document.getElementById('home-categories'), 'amount');
+}
+
+function monthCategoryTotals() {
+  const monthPrefix = todayString().slice(0, 7);
+  const totals = {};
+  CATEGORIES.forEach((category) => {
+    totals[category.name] = 0;
+  });
+
+  getTransactions().forEach((transaction) => {
+    if (transaction.status === 'pending') return;
+    if (!transaction.date || transaction.date.slice(0, 7) !== monthPrefix) return;
+    const category = categoryByName(transaction.category);
+    totals[category.name] += Math.round((Number(transaction.amount) || 0) * 100);
+  });
+
+  return totals;
+}
+
+function renderCategoryBreakdown(container, mode) {
+  if (!container) return;
+  container.replaceChildren();
+
+  const totals = monthCategoryTotals();
+  const entries = CATEGORIES
+    .map((category) => ({ category, cents: totals[category.name] || 0 }))
+    .filter((entry) => entry.cents > 0);
+  const total = entries.reduce((sum, entry) => sum + entry.cents, 0);
+
+  if (entries.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = '這個月還沒有可分類的花費。';
+    container.appendChild(empty);
+    return;
+  }
+
+  const barColors = {
+    '飲食': '#FDE68A',
+    '交通': '#93C5FD',
+    '購物': '#F9A8D4',
+    '娛樂': '#6EE7B7',
+    '其他': '#C4B5FD'
+  };
+
+  entries.forEach((entry) => {
+    const row = document.createElement('div');
+    row.className = 'cat-item';
+
+    const icon = document.createElement('div');
+    icon.className = 'cat-icon';
+    icon.style.background = entry.category.bg;
+    icon.textContent = entry.category.emoji;
+
+    const info = document.createElement('div');
+    info.className = 'cat-info';
+    const name = document.createElement('div');
+    name.className = 'cat-name';
+    name.textContent = entry.category.name;
+    const bar = document.createElement('div');
+    bar.className = 'cat-bar';
+    const fill = document.createElement('div');
+    fill.className = 'cat-fill';
+    const percent = total > 0 ? Math.round((entry.cents / total) * 100) : 0;
+    fill.style.width = Math.max(percent, 4) + '%';
+    fill.style.background = barColors[entry.category.name] || '#F9A8D4';
+    bar.appendChild(fill);
+    info.append(name, bar);
+
+    const amount = document.createElement('div');
+    amount.className = 'cat-amount';
+    amount.textContent = mode === 'percent' ? percent + '%' : formatAmount(entry.cents / 100);
+
+    row.append(icon, info, amount);
+    container.appendChild(row);
+  });
 }
 
 function categoryByName(name) {
