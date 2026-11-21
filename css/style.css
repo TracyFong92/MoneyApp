@@ -102,6 +102,8 @@ html, body {
 }
 
 .tx-card {
+  width: 100%;
+  border: none;
   background: white;
   border-radius: 20px;
   padding: 14px 16px;
@@ -110,6 +112,10 @@ html, body {
   align-items: center;
   gap: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
 .tx-icon {
@@ -246,6 +252,25 @@ html, body {
   font-weight: 800;
   box-shadow: 0 8px 20px rgba(244, 114, 182, 0.35);
   cursor: pointer;
+}
+
+.delete-btn {
+  width: 100%;
+  margin-top: 10px;
+  border: none;
+  border-radius: 20px;
+  padding: 16px;
+  background: #FDF2F8;
+  color: #E11D48;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.delete-btn.is-armed {
+  background: #E11D48;
+  color: white;
 }
 
 .tab-bar {
