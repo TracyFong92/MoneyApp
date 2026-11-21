@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#F472B6">
   <title>我的支出</title>
-  <link rel="stylesheet" href="css/style.css?v=12">
+  <link rel="stylesheet" href="css/style.css?v=13">
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -89,7 +89,11 @@
 
     <button class="fab" id="fab">+</button>
 
-    <button type="button" class="menu-btn" id="menu-btn" aria-label="開啟選單">選單</button>
+    <button type="button" class="menu-btn" id="menu-btn" aria-label="開啟選單">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
     <div class="side-menu" id="side-menu">
       <button type="button" class="menu-backdrop" id="menu-backdrop" aria-label="關閉選單"></button>
       <aside class="menu-panel">
@@ -97,17 +101,22 @@
           <h2>選單</h2>
           <button type="button" class="menu-close" id="menu-close">關閉</button>
         </div>
-        <h3 class="menu-section">備份</h3>
-        <div class="backup-card">
-          <p class="backup-note">換手機或清除瀏覽器前，請先匯出。檔案只會存在你的裝置裡。</p>
-          <button type="button" class="backup-btn" id="export-btn">匯出備份</button>
-          <button type="button" class="backup-btn backup-btn-ghost" id="import-btn">匯入備份</button>
-          <label class="backup-btn backup-btn-ghost" id="choose-backup" for="import-file" hidden>選擇備份檔</label>
-          <input id="import-file" type="file" accept="application/json,.json" hidden>
-          <button type="button" class="backup-btn backup-btn-danger" id="import-confirm" hidden>再按一次，確定取代目前資料</button>
-          <p class="backup-message" id="backup-message" hidden></p>
-        </div>
+        <button type="button" class="menu-item" id="open-backup">備份</button>
       </aside>
+    </div>
+    <div class="sheet" id="backup-sheet">
+      <button type="button" class="menu-backdrop" id="sheet-backdrop" aria-label="關閉備份"></button>
+      <div class="sheet-panel">
+        <div class="sheet-handle"></div>
+        <h2 class="sheet-title">備份</h2>
+        <p class="backup-note">換手機或清除瀏覽器前，請先匯出。檔案只會存在你的裝置裡。</p>
+        <button type="button" class="backup-btn" id="export-btn">匯出備份</button>
+        <button type="button" class="backup-btn backup-btn-ghost" id="import-btn">匯入備份</button>
+        <label class="backup-btn backup-btn-ghost" id="choose-backup" for="import-file" hidden>選擇備份檔</label>
+        <input id="import-file" type="file" accept="application/json,.json" hidden>
+        <button type="button" class="backup-btn backup-btn-danger" id="import-confirm" hidden>再按一次，確定取代目前資料</button>
+        <p class="backup-message" id="backup-message" hidden></p>
+      </div>
     </div>
 
     <nav class="tab-bar">
@@ -127,6 +136,6 @@
   </div>
 
   <script src="js/storage.js?v=7"></script>
-  <script src="js/app.js?v=12"></script>
+  <script src="js/app.js?v=13"></script>
 </body>
 </html>
