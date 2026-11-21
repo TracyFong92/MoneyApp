@@ -24,9 +24,47 @@ function showScreen(id) {
     fab.style.display = (id === 'add') ? 'none' : 'flex';
   }
 
+  if (id === 'home') {
+    renderSummary();
+  }
+
   if (id === 'transactions') {
     renderTransactionList();
   }
+}
+
+function dateToString(date) {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return date.getFullYear() + '-' + month + '-' + day;
+}
+
+function weekRange() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? 6 : day - 1;
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff);
+  const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+  return { start: dateToString(start), end: dateToString(end) };
+}
+
+function sumBetween(start, end) {
+  return getTransactions().reduce((total, transaction) => {
+    if (transaction.status === 'pending') return total;
+    if (!transaction.date || transaction.date < start || transaction.date > end) return total;
+    return total + Math.round((Number(transaction.amount) || 0) * 100);
+  }, 0);
+}
+
+function renderSummary() {
+  const today = todayString();
+  const week = weekRange();
+  const monthStart = today.slice(0, 8) + '01';
+  const monthEnd = today.slice(0, 8) + '31';
+
+  document.getElementById('today-total').textContent = formatAmount(sumBetween(today, today) / 100);
+  document.getElementById('week-total').textContent = formatAmount(sumBetween(week.start, week.end) / 100);
+  document.getElementById('month-total').textContent = formatAmount(sumBetween(monthStart, monthEnd) / 100);
 }
 
 function categoryByName(name) {
