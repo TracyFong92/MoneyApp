@@ -5,10 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="支出">
   <meta name="theme-color" content="#F472B6">
   <title>我的支出</title>
   <link rel="stylesheet" href="css/style.css?v=17">
   <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=18">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -102,6 +104,7 @@
         </div>
         <button type="button" class="menu-item" id="open-backup">備份</button>
         <button type="button" class="menu-item" id="open-shortcut">捷徑</button>
+        <button type="button" class="menu-item" id="open-install">加到主畫面</button>
       </aside>
     </div>
     <div class="sheet" id="backup-sheet">
@@ -135,6 +138,20 @@
         <p class="backup-message" id="shortcut-message" hidden></p>
       </div>
     </div>
+    <div class="sheet" id="install-sheet">
+      <button type="button" class="menu-backdrop" id="install-backdrop" aria-label="關閉說明"></button>
+      <div class="sheet-panel">
+        <div class="sheet-handle"></div>
+        <h2 class="sheet-title">加到主畫面</h2>
+        <p class="backup-note">用 Safari 加入後，它會像一般 iPhone App 一樣全螢幕打開，不再顯示網址列。</p>
+        <ol class="shortcut-steps">
+          <li>用 Safari 打開這個網頁。</li>
+          <li>按底部分享按鈕。</li>
+          <li>選擇「加入主畫面」。</li>
+          <li>按「加入」。之後從主畫面的圖示打開。</li>
+        </ol>
+      </div>
+    </div>
 
     <nav class="tab-bar">
       <button class="tab active" data-screen="home">
@@ -153,6 +170,6 @@
   </div>
 
   <script src="js/storage.js?v=7"></script>
-  <script src="js/app.js?v=17"></script>
+  <script src="js/app.js?v=18"></script>
 </body>
 </html>
