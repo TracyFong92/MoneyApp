@@ -7,6 +7,8 @@ const CATEGORIES = [
 ];
 
 let selectedCategory = '飲食';
+let editingId = null;
+let deleteArmed = false;
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -100,8 +102,10 @@ function renderTransactionList() {
     }
 
     const category = categoryByName(transaction.category);
-    const card = document.createElement('article');
+    const card = document.createElement('button');
+    card.type = 'button';
     card.className = 'tx-card';
+    card.addEventListener('click', () => openTransaction(transaction.id));
 
     const icon = document.createElement('div');
     icon.className = 'tx-icon';
@@ -134,6 +138,7 @@ function setSelectedCategory(name) {
   document.querySelectorAll('.chip').forEach((chip) => {
     chip.classList.toggle('selected', chip.dataset.category === name);
   });
+  disarmDelete();
 }
 
 function showFormError(message) {
@@ -147,12 +152,48 @@ function showFormError(message) {
   error.textContent = message;
 }
 
+function setFormMode(mode) {
+  const isEdit = mode === 'edit';
+  document.getElementById('form-emoji').textContent = isEdit ? '✏️' : '➕';
+  document.getElementById('form-title-text').textContent = isEdit ? '編輯' : '新增';
+  document.getElementById('save-btn').textContent = isEdit ? '儲存修改' : '儲存這筆';
+  const deleteBtn = document.getElementById('delete-btn');
+  deleteBtn.hidden = !isEdit;
+  deleteArmed = false;
+  deleteBtn.textContent = '刪除這筆';
+  deleteBtn.classList.remove('is-armed');
+}
+
+function disarmDelete() {
+  if (!deleteArmed) return;
+  deleteArmed = false;
+  const deleteBtn = document.getElementById('delete-btn');
+  deleteBtn.textContent = '刪除這筆';
+  deleteBtn.classList.remove('is-armed');
+}
+
 function resetAddForm() {
+  editingId = null;
   document.getElementById('add-form').reset();
   document.getElementById('date-input').value = todayString();
   document.getElementById('amount-input').value = '';
   setSelectedCategory('飲食');
   showFormError('');
+  setFormMode('add');
+}
+
+function openTransaction(id) {
+  const transaction = getTransactions().find((item) => item.id === id);
+  if (!transaction) return;
+
+  editingId = transaction.id;
+  document.getElementById('amount-input').value = String(transaction.amount);
+  document.getElementById('merchant-input').value = transaction.merchant || '';
+  document.getElementById('date-input').value = transaction.date || todayString();
+  setSelectedCategory(categoryByName(transaction.category).name);
+  showFormError('');
+  setFormMode('edit');
+  showScreen('add');
 }
 
 function renderCategoryChips() {
@@ -199,15 +240,48 @@ document.getElementById('add-form').addEventListener('submit', (event) => {
     return;
   }
 
-  addTransaction({
-    amount,
-    date,
-    merchant,
-    category: selectedCategory,
-    status: 'confirmed'
-  });
+  if (editingId) {
+    const existing = getTransactions().find((item) => item.id === editingId);
+    const updated = updateTransaction(editingId, {
+      amount,
+      date,
+      merchant,
+      category: selectedCategory,
+      status: existing && existing.status === 'pending' ? 'pending' : 'confirmed'
+    });
+    if (!updated) {
+      showFormError('找不到這筆紀錄，請回到列表再試一次');
+      return;
+    }
+  } else {
+    addTransaction({
+      amount,
+      date,
+      merchant,
+      category: selectedCategory,
+      status: 'confirmed'
+    });
+  }
   resetAddForm();
   showScreen('transactions');
+});
+
+document.getElementById('delete-btn').addEventListener('click', () => {
+  if (!editingId) return;
+  if (!deleteArmed) {
+    deleteArmed = true;
+    const deleteBtn = document.getElementById('delete-btn');
+    deleteBtn.textContent = '再按一次，確定刪除';
+    deleteBtn.classList.add('is-armed');
+    return;
+  }
+  deleteTransaction(editingId);
+  resetAddForm();
+  showScreen('transactions');
+});
+
+['amount-input', 'merchant-input', 'date-input'].forEach((id) => {
+  document.getElementById(id).addEventListener('input', disarmDelete);
 });
 
 renderCategoryChips();
