@@ -539,6 +539,30 @@ html, body {
   cursor: pointer;
 }
 
+.menu-item + .menu-item {
+  margin-top: 10px;
+}
+
+.shortcut-steps {
+  margin: 12px 0 14px 18px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.shortcut-url {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 12px;
+  background: #FDF2F8;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .sheet {
   display: none;
   position: absolute;
