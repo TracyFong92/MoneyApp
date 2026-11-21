@@ -396,6 +396,10 @@ html, body {
   cursor: pointer;
 }
 
+.backup-btn[hidden] {
+  display: none;
+}
+
 .backup-btn-ghost {
   background: #FDF2F8;
   color: var(--primary-dark);
