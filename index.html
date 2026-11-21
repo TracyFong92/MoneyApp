@@ -104,7 +104,6 @@
         </div>
         <button type="button" class="menu-item" id="open-backup">備份</button>
         <button type="button" class="menu-item" id="open-shortcut">捷徑</button>
-        <button type="button" class="menu-item" id="open-install">加到主畫面</button>
       </aside>
     </div>
     <div class="sheet" id="backup-sheet">
@@ -125,31 +124,23 @@
       <button type="button" class="menu-backdrop" id="shortcut-backdrop" aria-label="關閉捷徑"></button>
       <div class="sheet-panel">
         <div class="sheet-handle"></div>
-        <h2 class="sheet-title">捷徑</h2>
-        <p class="backup-note">App 不能自己讀取 PayMe 或支付寶通知。你可以用 iPhone 的「捷徑」打開一個網址，把金額和商家傳進來。傳進來的紀錄會先變成待確認。</p>
+        <h2 class="sheet-title">Apple Pay</h2>
+        <p class="backup-note">用 Apple 錢包拍卡付款後，捷徑會把金額和店名傳進來，先變成待確認。請固定用 Safari 打開這個網頁。PayMe、支付寶、八達通 App 裡付款不會自動記。</p>
         <ol class="shortcut-steps">
-          <li>打開「捷徑」App，建立一個新捷徑。</li>
-          <li>加入動作「打開 URL」。</li>
-          <li>貼上下面的網址，把金額和商家改成這次的消費。</li>
-          <li>執行捷徑後，回到這裡確認那一筆。</li>
+          <li>打開「捷徑」App，點下方「自動化」。</li>
+          <li>按右上角＋，搜尋「交易」或「錢包」。</li>
+          <li>選你要記的卡，打開「立即執行」，按下一步。</li>
+          <li>選「新的空白自動化」。</li>
+          <li>搜尋並加入「打開 URL」。</li>
+          <li>貼上下面的網址，緊接著輸入 ?amount=</li>
+          <li>點網址欄，在鍵盤上方選「捷徑輸入」，再點一次，選「金額」。</li>
+          <li>接著輸入 &merchant=</li>
+          <li>再加入「捷徑輸入」，選「商家」。</li>
+          <li>按右上角「完成」。</li>
         </ol>
         <input id="shortcut-url" class="shortcut-url" readonly>
         <button type="button" class="backup-btn" id="copy-shortcut">複製網址</button>
         <p class="backup-message" id="shortcut-message" hidden></p>
-      </div>
-    </div>
-    <div class="sheet" id="install-sheet">
-      <button type="button" class="menu-backdrop" id="install-backdrop" aria-label="關閉說明"></button>
-      <div class="sheet-panel">
-        <div class="sheet-handle"></div>
-        <h2 class="sheet-title">加到主畫面</h2>
-        <p class="backup-note">用 Safari 加入後，它會像一般 iPhone App 一樣全螢幕打開，不再顯示網址列。</p>
-        <ol class="shortcut-steps">
-          <li>用 Safari 打開這個網頁。</li>
-          <li>按底部分享按鈕。</li>
-          <li>選擇「加入主畫面」。</li>
-          <li>按「加入」。之後從主畫面的圖示打開。</li>
-        </ol>
       </div>
     </div>
 
@@ -170,6 +161,6 @@
   </div>
 
   <script src="js/storage.js?v=7"></script>
-  <script src="js/app.js?v=18"></script>
+  <script src="js/app.js?v=20"></script>
 </body>
 </html>
