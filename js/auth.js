@@ -6,6 +6,12 @@ import {
   signOut,
   onAuthStateChanged
 } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc
+} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDw6d6k-0vssQfG3hA0Fih1Imk_K8dwGJE',
@@ -18,6 +24,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 const loginScreen = document.getElementById('login-screen');
 const loginForm = document.getElementById('login-form');
@@ -72,13 +79,54 @@ loginForm.addEventListener('submit', async (event) => {
 });
 
 document.getElementById('logout-btn').addEventListener('click', async () => {
+  window.cloudSyncEnabled = false;
   await signOut(auth);
 });
 
-onAuthStateChanged(auth, (user) => {
+window.syncTransactionsToCloud = async function syncTransactionsToCloud(transactions) {
+  const user = auth.currentUser;
+  if (!user || !window.cloudSyncEnabled) return;
+  await setDoc(doc(db, 'users', user.uid), {
+    transactions,
+    updatedAt: new Date().toISOString()
+  });
+};
+
+async function loadCloudTransactions(user) {
+  window.cloudSyncEnabled = false;
+  const snapshot = await getDoc(doc(db, 'users', user.uid));
+  const cloud = snapshot.exists() ? snapshot.data().transactions : null;
+  const local = typeof getTransactions === 'function' ? getTransactions() : [];
+
+  if (Array.isArray(cloud)) {
+    writeTransactions(cloud);
+  } else if (local.length) {
+    await setDoc(doc(db, 'users', user.uid), {
+      transactions: local,
+      updatedAt: new Date().toISOString()
+    });
+  }
+
+  window.cloudSyncEnabled = true;
+  if (typeof showScreen === 'function') showScreen('home');
+}
+
+onAuthStateChanged(auth, async (user) => {
   const loggedIn = Boolean(user);
   loginScreen.classList.toggle('is-hidden', loggedIn);
   appRoot.classList.toggle('is-locked', !loggedIn);
+  if (!loggedIn) {
+    window.cloudSyncEnabled = false;
+    if (typeof clearTransactions === 'function') clearTransactions();
+    if (typeof showScreen === 'function') showScreen('home');
+    return;
+  }
+  try {
+    await loadCloudTransactions(user);
+  } catch (error) {
+    window.cloudSyncEnabled = false;
+    showError('雲端資料暫時讀不到，請稍後再登入');
+  }
 });
 
 function loginMessage(code) {

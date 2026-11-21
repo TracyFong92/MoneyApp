@@ -14,6 +14,9 @@ function readTransactions() {
 
 function writeTransactions(transactions) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+  if (window.cloudSyncEnabled && typeof window.syncTransactionsToCloud === 'function') {
+    window.syncTransactionsToCloud(transactions);
+  }
 }
 
 function createId() {
