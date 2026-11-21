@@ -286,9 +286,47 @@ function updateCategoryHint(message) {
   hint.textContent = message;
 }
 
+function normalizeMerchant(value) {
+  return String(value || '').trim().toLowerCase().replace(/\s+/g, '');
+}
+
+function categoryFromHistory(merchant) {
+  const text = normalizeMerchant(merchant);
+  if (text.length < 2) return '';
+
+  const groups = { exact: {}, partial: {} };
+  getTransactions().forEach((transaction) => {
+    const name = normalizeMerchant(transaction.merchant);
+    if (name.length < 2) return;
+    const bucket = name === text ? 'exact' : ((name.includes(text) || text.includes(name)) ? 'partial' : '');
+    if (!bucket) return;
+
+    const category = categoryByName(transaction.category).name;
+    if (!groups[bucket][category]) groups[bucket][category] = { count: 0, latest: '' };
+    groups[bucket][category].count += 1;
+    const stamp = String(transaction.createdAt || transaction.date || '');
+    if (stamp > groups[bucket][category].latest) groups[bucket][category].latest = stamp;
+  });
+
+  const chosen = Object.keys(groups.exact).length ? groups.exact : groups.partial;
+  const ranked = Object.keys(chosen).sort((a, b) => {
+    if (chosen[a].count !== chosen[b].count) return chosen[b].count - chosen[a].count;
+    return chosen[b].latest.localeCompare(chosen[a].latest);
+  });
+  return ranked[0] || '';
+}
+
 function applyMerchantCategory() {
   if (categoryManuallyChosen) return;
-  const match = categoryFromMerchant(document.getElementById('merchant-input').value);
+  const merchant = document.getElementById('merchant-input').value;
+  const habit = categoryFromHistory(merchant);
+  if (habit) {
+    setSelectedCategory(habit);
+    updateCategoryHint('已按你之前的習慣分類為' + habit);
+    return;
+  }
+
+  const match = categoryFromMerchant(merchant);
   if (!match) {
     updateCategoryHint('');
     return;
