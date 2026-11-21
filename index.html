@@ -8,13 +8,32 @@
   <meta name="apple-mobile-web-app-title" content="支出">
   <meta name="theme-color" content="#F472B6">
   <title>我的支出</title>
-  <link rel="stylesheet" href="css/style.css?v=17">
+  <link rel="stylesheet" href="css/style.css?v=18">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=18">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="app">
+  <div class="app is-locked">
+    <section class="login-screen" id="login-screen">
+      <div class="login-card">
+        <h1><span class="emoji">🌈</span>我的支出</h1>
+        <p class="login-note" id="login-note">用同一個帳號，Safari 和主畫面 App 就能看到同一份資料。</p>
+        <form id="login-form">
+          <div class="input-card">
+            <label for="login-email">電郵</label>
+            <input id="login-email" type="email" autocomplete="email" required placeholder="you@email.com">
+          </div>
+          <div class="input-card">
+            <label for="login-password">密碼</label>
+            <input id="login-password" type="password" autocomplete="current-password" required minlength="6" placeholder="至少 6 個字">
+          </div>
+          <p class="form-error" id="login-error" hidden></p>
+          <button class="save-btn" id="login-submit" type="submit">登入</button>
+        </form>
+        <button type="button" class="login-switch" id="login-switch">還沒有帳號？建立帳號</button>
+      </div>
+    </section>
     <!-- 總覽 -->
     <section id="home" class="screen active">
       <header class="header">
@@ -104,6 +123,7 @@
         </div>
         <button type="button" class="menu-item" id="open-backup">備份</button>
         <button type="button" class="menu-item" id="open-shortcut">捷徑</button>
+        <button type="button" class="menu-item" id="logout-btn">登出</button>
       </aside>
     </div>
     <div class="sheet" id="backup-sheet">
@@ -162,5 +182,6 @@
 
   <script src="js/storage.js?v=7"></script>
   <script src="js/app.js?v=20"></script>
+  <script type="module" src="js/auth.js?v=1"></script>
 </body>
 </html>
