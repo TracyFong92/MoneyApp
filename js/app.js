@@ -486,6 +486,14 @@ document.getElementById('fab').addEventListener('click', () => {
   showScreen('add');
 });
 
+function setMenuOpen(open) {
+  document.getElementById('side-menu').classList.toggle('is-open', open);
+}
+
+document.getElementById('menu-btn').addEventListener('click', () => setMenuOpen(true));
+document.getElementById('menu-close').addEventListener('click', () => setMenuOpen(false));
+document.getElementById('menu-backdrop').addEventListener('click', () => setMenuOpen(false));
+
 document.getElementById('pending-banner').addEventListener('click', () => {
   openConfirm();
 });
