@@ -72,6 +72,26 @@ html, body {
   margin-right: 8px;
 }
 
+.pending-banner {
+  width: 100%;
+  margin-bottom: 16px;
+  border: none;
+  border-radius: 22px;
+  padding: 16px 18px;
+  background: white;
+  color: var(--primary-dark);
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  text-align: left;
+  box-shadow: 0 4px 16px rgba(244, 114, 182, 0.18);
+  cursor: pointer;
+}
+
+.pending-banner[hidden] {
+  display: none;
+}
+
 .hero-card {
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent-pink) 100%);
   border-radius: 28px;
