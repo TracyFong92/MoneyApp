@@ -20,16 +20,6 @@
         <p class="subtitle">今天也要好好記帳呀</p>
       </header>
       <div class="placeholder">總覽畫面骨架<br>（之後會放入本月花費等內容）</div>
-
-      <div class="storage-test" id="storage-test">
-        <p class="storage-test-label">資料儲存測試</p>
-        <p class="storage-test-count">已儲存 <strong id="storage-count">0</strong> 筆</p>
-        <div class="storage-test-actions">
-          <button type="button" class="storage-btn" id="add-test-record">加入一筆測試資料</button>
-          <button type="button" class="storage-btn storage-btn-ghost" id="clear-test-records">清除測試資料</button>
-        </div>
-        <p class="storage-test-note">這是暫時測試。關閉 App 再打開，數字應該還在。</p>
-      </div>
     </section>
 
     <!-- 紀錄 -->
@@ -37,7 +27,7 @@
       <header class="header">
         <h1><span class="emoji">📒</span>紀錄</h1>
       </header>
-      <div class="placeholder">紀錄列表骨架</div>
+      <div id="transaction-list"></div>
     </section>
 
     <!-- 分析 -->
@@ -53,7 +43,26 @@
       <header class="header">
         <h1><span class="emoji">➕</span>新增</h1>
       </header>
-      <div class="placeholder">新增交易骨架</div>
+      <form id="add-form">
+        <div class="add-hero">
+          <div class="currency">HK$</div>
+          <input id="amount-input" class="amount-big" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="金額">
+        </div>
+        <p class="form-error" id="form-error" hidden></p>
+        <div class="input-card">
+          <label for="merchant-input">商家名稱</label>
+          <input id="merchant-input" type="text" maxlength="40" placeholder="例如：麥當勞" autocomplete="off">
+        </div>
+        <div class="input-card">
+          <label for="date-input">日期</label>
+          <input id="date-input" type="date">
+        </div>
+        <div class="input-card">
+          <p class="field-label">選擇類別</p>
+          <div class="chips" id="category-chips"></div>
+        </div>
+        <button class="save-btn" type="submit">儲存這筆</button>
+      </form>
     </section>
 
     <button class="fab" id="fab">+</button>
