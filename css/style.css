@@ -366,6 +366,54 @@ html, body {
   color: var(--primary-dark);
 }
 
+.backup-card {
+  background: white;
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.backup-note {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.backup-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  border: none;
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, var(--primary), var(--accent-pink));
+  color: white;
+  text-align: center;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.backup-btn-ghost {
+  background: #FDF2F8;
+  color: var(--primary-dark);
+}
+
+.backup-btn-danger {
+  background: #E11D48;
+  color: white;
+}
+
+.backup-message {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.5;
+  color: var(--primary-dark);
+}
+
 .save-btn {
   width: 100%;
   margin-top: 8px;
