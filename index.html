@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#F472B6">
   <title>我的支出</title>
-  <link rel="stylesheet" href="css/style.css?v=9">
+  <link rel="stylesheet" href="css/style.css?v=10">
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -39,7 +39,8 @@
       <div class="backup-card">
         <p class="backup-note">換手機或清除瀏覽器前，請先匯出。檔案只會存在你的裝置裡。</p>
         <button type="button" class="backup-btn" id="export-btn">匯出備份</button>
-        <label class="backup-btn backup-btn-ghost" for="import-file">選擇備份檔</label>
+        <button type="button" class="backup-btn backup-btn-ghost" id="import-btn">匯入備份</button>
+        <label class="backup-btn backup-btn-ghost" id="choose-backup" for="import-file" hidden>選擇備份檔</label>
         <input id="import-file" type="file" accept="application/json,.json" hidden>
         <button type="button" class="backup-btn backup-btn-danger" id="import-confirm" hidden>再按一次，確定取代目前資料</button>
         <p class="backup-message" id="backup-message" hidden></p>
@@ -112,6 +113,6 @@
   </div>
 
   <script src="js/storage.js?v=7"></script>
-  <script src="js/app.js?v=9"></script>
+  <script src="js/app.js?v=10"></script>
 </body>
 </html>
