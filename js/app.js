@@ -501,8 +501,30 @@ document.getElementById('menu-backdrop').addEventListener('click', () => setMenu
 document.getElementById('open-backup').addEventListener('click', () => {
   setMenuOpen(false);
   setBackupSheetOpen(true);
+  document.getElementById('shortcut-sheet').classList.remove('is-open');
 });
 document.getElementById('sheet-backdrop').addEventListener('click', () => setBackupSheetOpen(false));
+document.getElementById('open-shortcut').addEventListener('click', () => {
+  setMenuOpen(false);
+  setBackupSheetOpen(false);
+  document.getElementById('shortcut-url').value = shortcutExampleUrl();
+  document.getElementById('shortcut-sheet').classList.add('is-open');
+});
+document.getElementById('shortcut-backdrop').addEventListener('click', () => {
+  document.getElementById('shortcut-sheet').classList.remove('is-open');
+});
+document.getElementById('copy-shortcut').addEventListener('click', async () => {
+  const url = document.getElementById('shortcut-url').value;
+  const message = document.getElementById('shortcut-message');
+  try {
+    await navigator.clipboard.writeText(url);
+    message.hidden = false;
+    message.textContent = '已複製。到「捷徑」App 貼上即可。';
+  } catch (error) {
+    message.hidden = false;
+    message.textContent = '請長按網址，然後選擇複製。';
+  }
+});
 
 (function setupMenuSwipe() {
   const menu = document.getElementById('side-menu');
@@ -703,9 +725,46 @@ document.getElementById('merchant-input').addEventListener('input', () => {
   applyMerchantCategory();
 });
 
+function shortcutExampleUrl() {
+  const url = new URL(window.location.href);
+  url.search = '';
+  url.hash = '';
+  url.searchParams.set('amount', '48');
+  url.searchParams.set('merchant', '麥當勞');
+  return url.toString();
+}
+
+function importFromShortcutLink() {
+  const current = new URL(window.location.href);
+  if (!current.searchParams.has('amount') && !current.searchParams.has('merchant')) return;
+
+  const amount = parseAmount(current.searchParams.get('amount'));
+  const merchant = String(current.searchParams.get('merchant') || '').trim();
+  const rawDate = String(current.searchParams.get('date') || '');
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? rawDate : todayString();
+  const givenCategory = String(current.searchParams.get('category') || '').trim();
+  const category = categoryByName(
+    givenCategory || categoryFromHistory(merchant) || categoryFromMerchant(merchant) || '飲食'
+  ).name;
+
+  ['amount', 'merchant', 'date', 'category'].forEach((key) => current.searchParams.delete(key));
+  history.replaceState({}, '', current.pathname + current.search + current.hash);
+
+  if (!Number.isFinite(amount) || amount <= 0 || !merchant) return;
+
+  addTransaction({
+    amount,
+    date,
+    merchant,
+    category,
+    status: 'pending'
+  });
+}
+
 renderCategoryChips();
 document.getElementById('date-input').value = todayString();
 setupBackup();
+importFromShortcutLink();
 showScreen('home');
 
 let pendingImport = null;
