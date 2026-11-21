@@ -52,6 +52,7 @@ html, body {
 
 .header {
   margin-bottom: 24px;
+  padding-right: 72px;
 }
 
 .header h1 {
@@ -435,6 +436,85 @@ html, body {
   font-size: 14px;
   font-weight: 800;
   line-height: 1.5;
+  color: var(--primary-dark);
+}
+
+.menu-btn {
+  position: absolute;
+  top: calc(18px + var(--safe-top));
+  right: 16px;
+  z-index: 120;
+  border: none;
+  border-radius: 16px;
+  padding: 10px 14px;
+  background: white;
+  color: var(--primary-dark);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(244, 114, 182, 0.2);
+  cursor: pointer;
+}
+
+.side-menu {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 200;
+}
+
+.side-menu.is-open {
+  display: block;
+}
+
+.menu-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(63, 63, 70, 0.35);
+}
+
+.menu-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(320px, 86%);
+  padding: 22px 18px calc(24px + var(--safe-bottom));
+  overflow-y: auto;
+  background: linear-gradient(180deg, #FDF2F8 0%, #F0FDFA 100%);
+  box-shadow: -8px 0 24px rgba(0,0,0,0.08);
+}
+
+.menu-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.menu-head h2 {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.menu-close {
+  border: none;
+  border-radius: 14px;
+  padding: 8px 12px;
+  background: white;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.menu-section {
+  margin: 0 4px 10px;
+  font-size: 16px;
+  font-weight: 800;
   color: var(--primary-dark);
 }
 
