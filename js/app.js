@@ -502,27 +502,16 @@ document.getElementById('open-backup').addEventListener('click', () => {
   setMenuOpen(false);
   setBackupSheetOpen(true);
   document.getElementById('shortcut-sheet').classList.remove('is-open');
-  document.getElementById('install-sheet').classList.remove('is-open');
 });
 document.getElementById('sheet-backdrop').addEventListener('click', () => setBackupSheetOpen(false));
 document.getElementById('open-shortcut').addEventListener('click', () => {
   setMenuOpen(false);
   setBackupSheetOpen(false);
-  document.getElementById('install-sheet').classList.remove('is-open');
   document.getElementById('shortcut-url').value = shortcutExampleUrl();
   document.getElementById('shortcut-sheet').classList.add('is-open');
 });
 document.getElementById('shortcut-backdrop').addEventListener('click', () => {
   document.getElementById('shortcut-sheet').classList.remove('is-open');
-});
-document.getElementById('open-install').addEventListener('click', () => {
-  setMenuOpen(false);
-  setBackupSheetOpen(false);
-  document.getElementById('shortcut-sheet').classList.remove('is-open');
-  document.getElementById('install-sheet').classList.add('is-open');
-});
-document.getElementById('install-backdrop').addEventListener('click', () => {
-  document.getElementById('install-sheet').classList.remove('is-open');
 });
 document.getElementById('copy-shortcut').addEventListener('click', async () => {
   const url = document.getElementById('shortcut-url').value;
@@ -530,7 +519,7 @@ document.getElementById('copy-shortcut').addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText(url);
     message.hidden = false;
-    message.textContent = '已複製。到「捷徑」App 貼上即可。';
+    message.textContent = '已複製網址。請貼到捷徑的「打開 URL」。';
   } catch (error) {
     message.hidden = false;
     message.textContent = '請長按網址，然後選擇複製。';
@@ -740,8 +729,10 @@ function shortcutExampleUrl() {
   const url = new URL(window.location.href);
   url.search = '';
   url.hash = '';
-  url.searchParams.set('amount', '48');
-  url.searchParams.set('merchant', '麥當勞');
+  if (!url.pathname.endsWith('/')) {
+    const last = url.pathname.split('/').pop();
+    if (last && last.indexOf('.') === -1) url.pathname += '/';
+  }
   return url.toString();
 }
 
