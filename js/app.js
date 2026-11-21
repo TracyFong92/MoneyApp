@@ -9,6 +9,14 @@ const CATEGORIES = [
 let selectedCategory = '飲食';
 let editingId = null;
 let deleteArmed = false;
+let categoryManuallyChosen = false;
+
+const CATEGORY_KEYWORDS = [
+  ['飲食', ['麥當勞', 'mcdonald', '肯德基', 'kfc', '星巴克', 'starbucks', '大家樂', '大快活', '美心', '吉野家', '譚仔', '壽司郎', '壽司', '茶餐廳', '咖啡', 'cafe', '餐廳']],
+  ['交通', ['八達通', 'octopus', '港鐵', '地鐵', 'mtr', '巴士', '小巴', '的士', 'uber', '電車', '天星', '停車']],
+  ['購物', ['無印', 'muji', 'uniqlo', '優衣庫', '百佳', '惠康', '萬寧', '屈臣氏', 'hktvmall', '淘寶', 'taobao', '順豐']],
+  ['娛樂', ['電影', '戲院', 'netflix', 'spotify', '遊戲', '卡拉ok', 'ktv']]
+];
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -252,6 +260,43 @@ function renderTransactionList() {
   });
 }
 
+function categoryFromMerchant(merchant) {
+  const text = String(merchant || '').trim().toLowerCase();
+  if (!text) return '';
+
+  const rules = [];
+  CATEGORY_KEYWORDS.forEach(([category, words]) => {
+    words.forEach((word) => rules.push({ category, word: word.toLowerCase() }));
+  });
+  rules.sort((a, b) => b.word.length - a.word.length);
+
+  const found = rules.find((rule) => text.includes(rule.word));
+  return found ? found.category : '';
+}
+
+function updateCategoryHint(message) {
+  const hint = document.getElementById('category-hint');
+  if (!hint) return;
+  if (!message) {
+    hint.hidden = true;
+    hint.textContent = '';
+    return;
+  }
+  hint.hidden = false;
+  hint.textContent = message;
+}
+
+function applyMerchantCategory() {
+  if (categoryManuallyChosen) return;
+  const match = categoryFromMerchant(document.getElementById('merchant-input').value);
+  if (!match) {
+    updateCategoryHint('');
+    return;
+  }
+  setSelectedCategory(match);
+  updateCategoryHint('已按商家自動分類為' + match);
+}
+
 function setSelectedCategory(name) {
   selectedCategory = name;
   document.querySelectorAll('.chip').forEach((chip) => {
@@ -293,10 +338,12 @@ function disarmDelete() {
 
 function resetAddForm() {
   editingId = null;
+  categoryManuallyChosen = false;
   document.getElementById('add-form').reset();
   document.getElementById('date-input').value = todayString();
   document.getElementById('amount-input').value = '';
   setSelectedCategory('飲食');
+  updateCategoryHint('');
   showFormError('');
   setFormMode('add');
 }
@@ -310,6 +357,8 @@ function openTransaction(id) {
   document.getElementById('merchant-input').value = transaction.merchant || '';
   document.getElementById('date-input').value = transaction.date || todayString();
   setSelectedCategory(categoryByName(transaction.category).name);
+  categoryManuallyChosen = true;
+  updateCategoryHint('');
   showFormError('');
   setFormMode('edit');
   showScreen('add');
@@ -323,7 +372,11 @@ function renderCategoryChips() {
     button.className = 'chip';
     button.dataset.category = category.name;
     button.textContent = category.emoji + ' ' + category.name;
-    button.addEventListener('click', () => setSelectedCategory(category.name));
+    button.addEventListener('click', () => {
+      categoryManuallyChosen = true;
+      setSelectedCategory(category.name);
+      updateCategoryHint('');
+    });
     wrap.appendChild(button);
   });
   setSelectedCategory('飲食');
@@ -401,6 +454,11 @@ document.getElementById('delete-btn').addEventListener('click', () => {
 
 ['amount-input', 'merchant-input', 'date-input'].forEach((id) => {
   document.getElementById(id).addEventListener('input', disarmDelete);
+});
+
+document.getElementById('merchant-input').addEventListener('input', () => {
+  categoryManuallyChosen = false;
+  applyMerchantCategory();
 });
 
 renderCategoryChips();
