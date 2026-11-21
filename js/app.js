@@ -502,16 +502,27 @@ document.getElementById('open-backup').addEventListener('click', () => {
   setMenuOpen(false);
   setBackupSheetOpen(true);
   document.getElementById('shortcut-sheet').classList.remove('is-open');
+  document.getElementById('install-sheet').classList.remove('is-open');
 });
 document.getElementById('sheet-backdrop').addEventListener('click', () => setBackupSheetOpen(false));
 document.getElementById('open-shortcut').addEventListener('click', () => {
   setMenuOpen(false);
   setBackupSheetOpen(false);
+  document.getElementById('install-sheet').classList.remove('is-open');
   document.getElementById('shortcut-url').value = shortcutExampleUrl();
   document.getElementById('shortcut-sheet').classList.add('is-open');
 });
 document.getElementById('shortcut-backdrop').addEventListener('click', () => {
   document.getElementById('shortcut-sheet').classList.remove('is-open');
+});
+document.getElementById('open-install').addEventListener('click', () => {
+  setMenuOpen(false);
+  setBackupSheetOpen(false);
+  document.getElementById('shortcut-sheet').classList.remove('is-open');
+  document.getElementById('install-sheet').classList.add('is-open');
+});
+document.getElementById('install-backdrop').addEventListener('click', () => {
+  document.getElementById('install-sheet').classList.remove('is-open');
 });
 document.getElementById('copy-shortcut').addEventListener('click', async () => {
   const url = document.getElementById('shortcut-url').value;
