@@ -501,30 +501,8 @@ document.getElementById('menu-backdrop').addEventListener('click', () => setMenu
 document.getElementById('open-backup').addEventListener('click', () => {
   setMenuOpen(false);
   setBackupSheetOpen(true);
-  document.getElementById('shortcut-sheet').classList.remove('is-open');
 });
 document.getElementById('sheet-backdrop').addEventListener('click', () => setBackupSheetOpen(false));
-document.getElementById('open-shortcut').addEventListener('click', () => {
-  setMenuOpen(false);
-  setBackupSheetOpen(false);
-  document.getElementById('shortcut-url').value = shortcutExampleUrl();
-  document.getElementById('shortcut-sheet').classList.add('is-open');
-});
-document.getElementById('shortcut-backdrop').addEventListener('click', () => {
-  document.getElementById('shortcut-sheet').classList.remove('is-open');
-});
-document.getElementById('copy-shortcut').addEventListener('click', async () => {
-  const url = document.getElementById('shortcut-url').value;
-  const message = document.getElementById('shortcut-message');
-  try {
-    await navigator.clipboard.writeText(url);
-    message.hidden = false;
-    message.textContent = '已複製網址。請貼到捷徑的「打開 URL」。';
-  } catch (error) {
-    message.hidden = false;
-    message.textContent = '請長按網址，然後選擇複製。';
-  }
-});
 
 (function setupMenuSwipe() {
   const menu = document.getElementById('side-menu');

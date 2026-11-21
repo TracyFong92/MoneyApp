@@ -26,6 +26,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const loadingScreen = document.getElementById('loading-screen');
+const loadingText = document.getElementById('loading-text');
+
+function setLoading(show, text) {
+  loadingText.textContent = text || '載入中';
+  loadingScreen.hidden = !show;
+}
+
 const loginScreen = document.getElementById('login-screen');
 const loginForm = document.getElementById('login-form');
 const loginNote = document.getElementById('login-note');
@@ -65,6 +73,7 @@ loginForm.addEventListener('submit', async (event) => {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
   loginSubmit.disabled = true;
+  setLoading(true, mode === 'register' ? '建立帳號中' : '登入中');
   try {
     if (mode === 'register') {
       await createUserWithEmailAndPassword(auth, email, password);
@@ -75,6 +84,7 @@ loginForm.addEventListener('submit', async (event) => {
     showError(loginMessage(error.code));
   } finally {
     loginSubmit.disabled = false;
+    setLoading(false);
   }
 });
 
@@ -93,6 +103,7 @@ window.syncTransactionsToCloud = async function syncTransactionsToCloud(transact
 };
 
 async function loadCloudTransactions(user) {
+  setLoading(true, '同步資料中');
   window.cloudSyncEnabled = false;
   const snapshot = await getDoc(doc(db, 'users', user.uid));
   const cloud = snapshot.exists() ? snapshot.data().transactions : null;
@@ -108,6 +119,7 @@ async function loadCloudTransactions(user) {
   }
 
   window.cloudSyncEnabled = true;
+  setLoading(false);
   if (typeof showScreen === 'function') showScreen('home');
 }
 
@@ -125,6 +137,7 @@ onAuthStateChanged(auth, async (user) => {
     await loadCloudTransactions(user);
   } catch (error) {
     window.cloudSyncEnabled = false;
+    setLoading(false);
     showError('雲端資料暫時讀不到，請稍後再登入');
   }
 });
