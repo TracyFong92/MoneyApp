@@ -507,20 +507,36 @@ document.getElementById('sheet-backdrop').addEventListener('click', () => setBac
 (function setupMenuSwipe() {
   const menu = document.getElementById('side-menu');
   const panel = document.querySelector('.menu-panel');
+  const backdrop = document.getElementById('menu-backdrop');
   let startX = 0;
   let startY = 0;
+  let lastX = 0;
+  let lastTime = 0;
+  let velocity = 0;
   let tracking = false;
   let horizontal = false;
+
+  function rubber(distance) {
+    const extra = Math.abs(distance);
+    return Math.sign(distance) * (1 - Math.exp(-extra / 140)) * 56;
+  }
+
+  function place(shown, width) {
+    panel.style.transform = 'translateX(' + (shown - width) + 'px)';
+    backdrop.style.opacity = String(Math.max(0, Math.min(1, shown / width)));
+  }
 
   document.addEventListener('touchstart', (event) => {
     if (event.touches.length !== 1) return;
     const touch = event.touches[0];
     const open = menu.classList.contains('is-open');
     const fromEdge = touch.clientX <= 28;
-    const onPanel = open && touch.clientX <= panel.getBoundingClientRect().right;
+    const onPanel = open && touch.clientX <= panel.getBoundingClientRect().right + 24;
     if (!fromEdge && !onPanel) return;
-    startX = touch.clientX;
+    startX = lastX = touch.clientX;
     startY = touch.clientY;
+    lastTime = event.timeStamp;
+    velocity = 0;
     tracking = true;
     horizontal = false;
   }, { passive: true });
@@ -538,24 +554,42 @@ document.getElementById('sheet-backdrop').addEventListener('click', () => setBac
       }
       horizontal = true;
       panel.style.transition = 'none';
+      backdrop.style.transition = 'none';
     }
+    if (event.cancelable) event.preventDefault();
     const width = panel.offsetWidth;
     const open = menu.classList.contains('is-open');
-    const shown = Math.max(0, Math.min(width, (open ? width : 0) + dx));
-    panel.style.transform = 'translateX(' + (shown - width) + 'px)';
-  }, { passive: true });
+    let shown = (open ? width : 0) + dx;
+    if (shown < 0) shown = rubber(shown);
+    else if (shown > width) shown = width + rubber(shown - width);
+    place(shown, width);
+    const dt = event.timeStamp - lastTime;
+    if (dt > 0) velocity = (touch.clientX - lastX) / dt;
+    lastX = touch.clientX;
+    lastTime = event.timeStamp;
+  }, { passive: false });
 
-  function endSwipe(event) {
+  function endSwipe() {
     if (!tracking) return;
-    const touch = event.changedTouches[0];
-    const dx = touch.clientX - startX;
-    const open = menu.classList.contains('is-open');
+    const wasHorizontal = horizontal;
     tracking = false;
-    panel.style.transition = '';
+    horizontal = false;
+    if (!wasHorizontal) return;
+
+    const width = panel.offsetWidth;
+    const matrix = getComputedStyle(panel).transform;
+    let shown = 0;
+    if (matrix && matrix !== 'none') {
+      const values = matrix.match(/-?\d+\.?\d*/g);
+      if (values && values.length >= 5) shown = Number(values[4]) + width;
+    }
+    const open = velocity > 0.45 || (velocity > -0.45 && shown > width * 0.45);
+    panel.style.transition = 'transform 0.46s cubic-bezier(0.22, 1.28, 0.36, 1)';
+    backdrop.style.transition = 'opacity 0.46s ease';
+    void panel.offsetWidth;
+    menu.classList.toggle('is-open', open);
     panel.style.transform = '';
-    if (!horizontal) return;
-    if (open) setMenuOpen(dx < -40 ? false : true);
-    else setMenuOpen(dx > 40);
+    backdrop.style.opacity = '';
   }
 
   document.addEventListener('touchend', endSwipe);
