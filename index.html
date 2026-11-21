@@ -26,6 +26,7 @@
     <section id="transactions" class="screen">
       <header class="header">
         <h1><span class="emoji">📒</span>紀錄</h1>
+        <p class="subtitle">點一下可以修改</p>
       </header>
       <div id="transaction-list"></div>
     </section>
@@ -41,7 +42,7 @@
     <!-- 新增 -->
     <section id="add" class="screen">
       <header class="header">
-        <h1><span class="emoji">➕</span>新增</h1>
+        <h1><span class="emoji" id="form-emoji">➕</span><span id="form-title-text">新增</span></h1>
       </header>
       <form id="add-form">
         <div class="add-hero">
@@ -61,7 +62,8 @@
           <p class="field-label">選擇類別</p>
           <div class="chips" id="category-chips"></div>
         </div>
-        <button class="save-btn" type="submit">儲存這筆</button>
+        <button class="save-btn" id="save-btn" type="submit">儲存這筆</button>
+        <button class="delete-btn" id="delete-btn" type="button" hidden>刪除這筆</button>
       </form>
     </section>
 
