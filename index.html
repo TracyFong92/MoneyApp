@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#F472B6">
   <title>我的支出</title>
-  <link rel="stylesheet" href="css/style.css?v=10">
+  <link rel="stylesheet" href="css/style.css?v=11">
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -19,6 +19,9 @@
         <h1><span class="emoji">🌈</span>總覽</h1>
         <p class="subtitle">今天也要好好記帳呀</p>
       </header>
+      <button type="button" class="pending-banner" id="pending-banner" hidden>
+        <span id="pending-count">0</span> 筆待確認，點這裡快速確認
+      </button>
       <div class="hero-card">
         <p class="hero-label">本月花費</p>
         <p class="hero-amount" id="month-total">HK$ 0</p>
@@ -113,6 +116,6 @@
   </div>
 
   <script src="js/storage.js?v=7"></script>
-  <script src="js/app.js?v=10"></script>
+  <script src="js/app.js?v=11"></script>
 </body>
 </html>
