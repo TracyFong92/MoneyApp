@@ -20,6 +20,16 @@
         <p class="subtitle">今天也要好好記帳呀</p>
       </header>
       <div class="placeholder">總覽畫面骨架<br>（之後會放入本月花費等內容）</div>
+
+      <div class="storage-test" id="storage-test">
+        <p class="storage-test-label">資料儲存測試</p>
+        <p class="storage-test-count">已儲存 <strong id="storage-count">0</strong> 筆</p>
+        <div class="storage-test-actions">
+          <button type="button" class="storage-btn" id="add-test-record">加入一筆測試資料</button>
+          <button type="button" class="storage-btn storage-btn-ghost" id="clear-test-records">清除測試資料</button>
+        </div>
+        <p class="storage-test-note">這是暫時測試。關閉 App 再打開，數字應該還在。</p>
+      </div>
     </section>
 
     <!-- 紀錄 -->
@@ -64,6 +74,7 @@
     </nav>
   </div>
 
+  <script src="js/storage.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
