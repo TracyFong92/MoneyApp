@@ -490,9 +490,18 @@ function setMenuOpen(open) {
   document.getElementById('side-menu').classList.toggle('is-open', open);
 }
 
+function setBackupSheetOpen(open) {
+  document.getElementById('backup-sheet').classList.toggle('is-open', open);
+}
+
 document.getElementById('menu-btn').addEventListener('click', () => setMenuOpen(true));
 document.getElementById('menu-close').addEventListener('click', () => setMenuOpen(false));
 document.getElementById('menu-backdrop').addEventListener('click', () => setMenuOpen(false));
+document.getElementById('open-backup').addEventListener('click', () => {
+  setMenuOpen(false);
+  setBackupSheetOpen(true);
+});
+document.getElementById('sheet-backdrop').addEventListener('click', () => setBackupSheetOpen(false));
 
 document.getElementById('pending-banner').addEventListener('click', () => {
   openConfirm();
