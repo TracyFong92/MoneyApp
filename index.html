@@ -8,13 +8,17 @@
   <meta name="apple-mobile-web-app-title" content="支出">
   <meta name="theme-color" content="#F472B6">
   <title>我的支出</title>
-  <link rel="stylesheet" href="css/style.css?v=18">
+  <link rel="stylesheet" href="css/style.css?v=19">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=18">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="app is-locked">
+    <section class="loading-screen" id="loading-screen" hidden>
+      <div class="spinner"></div>
+      <p id="loading-text">載入中</p>
+    </section>
     <section class="login-screen" id="login-screen">
       <div class="login-card">
         <h1><span class="emoji">🌈</span>我的支出</h1>
@@ -122,8 +126,7 @@
           <h2>選單</h2>
         </div>
         <button type="button" class="menu-item" id="open-backup">備份</button>
-        <button type="button" class="menu-item" id="open-shortcut">捷徑</button>
-        <button type="button" class="menu-item" id="logout-btn">登出</button>
+        <button type="button" class="menu-item logout-btn" id="logout-btn">登出</button>
       </aside>
     </div>
     <div class="sheet" id="backup-sheet">
@@ -181,7 +184,7 @@
   </div>
 
   <script src="js/storage.js?v=8"></script>
-  <script src="js/app.js?v=20"></script>
-  <script type="module" src="js/auth.js?v=2"></script>
+  <script src="js/app.js?v=21"></script>
+  <script type="module" src="js/auth.js?v=3"></script>
 </body>
 </html>
