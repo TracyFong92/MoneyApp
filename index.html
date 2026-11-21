@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#F472B6">
   <title>我的支出</title>
-  <link rel="stylesheet" href="css/style.css?v=16">
+  <link rel="stylesheet" href="css/style.css?v=17">
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -101,6 +101,7 @@
           <h2>選單</h2>
         </div>
         <button type="button" class="menu-item" id="open-backup">備份</button>
+        <button type="button" class="menu-item" id="open-shortcut">捷徑</button>
       </aside>
     </div>
     <div class="sheet" id="backup-sheet">
@@ -115,6 +116,23 @@
         <input id="import-file" type="file" accept="application/json,.json" hidden>
         <button type="button" class="backup-btn backup-btn-danger" id="import-confirm" hidden>再按一次，確定取代目前資料</button>
         <p class="backup-message" id="backup-message" hidden></p>
+      </div>
+    </div>
+    <div class="sheet" id="shortcut-sheet">
+      <button type="button" class="menu-backdrop" id="shortcut-backdrop" aria-label="關閉捷徑"></button>
+      <div class="sheet-panel">
+        <div class="sheet-handle"></div>
+        <h2 class="sheet-title">捷徑</h2>
+        <p class="backup-note">App 不能自己讀取 PayMe 或支付寶通知。你可以用 iPhone 的「捷徑」打開一個網址，把金額和商家傳進來。傳進來的紀錄會先變成待確認。</p>
+        <ol class="shortcut-steps">
+          <li>打開「捷徑」App，建立一個新捷徑。</li>
+          <li>加入動作「打開 URL」。</li>
+          <li>貼上下面的網址，把金額和商家改成這次的消費。</li>
+          <li>執行捷徑後，回到這裡確認那一筆。</li>
+        </ol>
+        <input id="shortcut-url" class="shortcut-url" readonly>
+        <button type="button" class="backup-btn" id="copy-shortcut">複製網址</button>
+        <p class="backup-message" id="shortcut-message" hidden></p>
       </div>
     </div>
 
@@ -135,6 +153,6 @@
   </div>
 
   <script src="js/storage.js?v=7"></script>
-  <script src="js/app.js?v=16"></script>
+  <script src="js/app.js?v=17"></script>
 </body>
 </html>
