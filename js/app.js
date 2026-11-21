@@ -519,8 +519,8 @@ function showBackupMessage(message) {
 
 function resetPendingImport() {
   pendingImport = null;
-  const confirmBtn = document.getElementById('import-confirm');
-  confirmBtn.hidden = true;
+  document.getElementById('import-confirm').hidden = true;
+  document.getElementById('choose-backup').hidden = true;
   document.getElementById('import-file').value = '';
 }
 
@@ -590,6 +590,14 @@ function setupBackup() {
   document.getElementById('export-btn').addEventListener('click', () => {
     resetPendingImport();
     exportBackup();
+  });
+
+  document.getElementById('import-btn').addEventListener('click', () => {
+    pendingImport = null;
+    document.getElementById('import-confirm').hidden = true;
+    document.getElementById('import-file').value = '';
+    document.getElementById('choose-backup').hidden = false;
+    showBackupMessage('請按「選擇備份檔」。');
   });
 
   document.getElementById('import-file').addEventListener('change', (event) => {
